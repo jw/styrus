@@ -1,0 +1,70 @@
+
+WHITESPACE = _{ " " | "\t" }
+// COMMENT = _{ "/*" ~ (!"*/" ~ ANY)* ~ "*/" }
+
+ident = @{ ASCII_ALPHA ~ (ASCII_ALPHANUMERIC)* }
+
+char = { ASCII_ALPHANUMERIC | "." | "_" | "/" }
+
+name = @{ char+ }
+value = @{ char* }
+property = { name ~ "=" ~ value }
+
+selector = @{ ident }
+
+rule = @{ selector }  // block of declarations
+
+stylus = _{ SOI ~ (rule ~ NEWLINE)* ~ EOI }
+
+
+// item = { (!"\n" ~ ANY)* }
+//
+// lists        = _{ lines ~ EOI }
+// lines        = _{ top_first ~ ("\n" ~ top_continue)* }
+// top_first    = _{ "- " ~ item ~ ("\n" ~ children)? }
+// top_continue = _{ PEEK_ALL ~ "- " ~ item ~ ("\n" ~ children)? }
+//
+// indentation = _{ (" " | "\t")+ }
+// children    =  { PEEK_ALL ~ PUSH(indentation) ~ lines ~ DROP }
+//
+// stylus = _{ SOI ~ lists ~ EOI }
+
+
+// WHITESPACE = _{ " " | "\t" }
+// COMMENT = _{ "/*" ~ (!"*/" ~ ANY)* ~ "*/" }
+//
+//
+// Statement = _{ Expression }
+// Expression = {
+//     AssignmentExpression |
+//     UnaryExpression |
+//     BinaryExpression |
+//     string |
+//     decimal |
+//     integer
+// }
+//
+// AssignmentExpression = { ident ~ "=" ~ Expression }
+//
+// UnaryExpression = { Operator ~ Term }
+// BinaryExpression = { Term ~ (Operator ~ Term)* }
+//
+// Operator = { "+" | "-" | "**" | "*" | "//" | "/"}
+// PlusOrMinus = { "+" | "-" }
+//
+// terms = { Term+ }
+// Term = _{ decimal | integer | hex | ident | "(" ~ Expression ~ ")" }
+//
+// ident = @{ ASCII_ALPHA ~ (ASCII_ALPHANUMERIC)* }
+//
+// integer = @{ (PlusOrMinus)? ~ ASCII_DIGIT+ }
+// decimal = @{ (PlusOrMinus)? ~ ASCII_DIGIT+ ~ "." ~ ASCII_DIGIT* }
+//
+// hex = @{ "0x" ~ ASCII_HEX_DIGIT }
+// octal = @{ "0o" ~ ASCII_OCT_DIGIT }
+// binary = @{ "0b" ~ ASCII_BIN_DIGIT }
+//
+// string = @{ "'" ~ ( "''" | (!"'" ~ ANY) )* ~ "'"}  // @todo: """ and "
+//
+// stylus = _{ SOI ~ (Expression ~ NEWLINE)* ~ EOI }
+//
