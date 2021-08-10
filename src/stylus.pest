@@ -1,6 +1,7 @@
 
 WHITESPACE = _{ " " | "\t" }
 INDENT = _{ " " | "\t" }
+EMPTYLINE = @{ NEWLINE }
 
 COLON = _{ ":" }
 EQUALS = _{ "=" }
@@ -9,14 +10,14 @@ ident = { ASCII_ALPHA ~ (ASCII_ALPHANUMERIC)* }
 name = { ASCII_ALPHA ~ (ASCII_ALPHANUMERIC)* }
 value = { ASCII_ALPHA ~ (ASCII_ALPHANUMERIC)* }
 
-rule = { selector ~ NEWLINE ~ (propertyLine)+ }
+rule = { selector ~ NEWLINE ~ (propertyLine)+ | EMPTYLINE }
 
 selector = { ident ~ (COLON)? }
 
 propertyLine = { // (INDENT)+ ~
-    property ~ NEWLINE
+    property ~ NEWLINE?
 }
-property = { name ~ (EQUALS)? ~ value }
+property = { name ~ "="? ~ value }
 
 stylus = { SOI ~ (rule)* ~ EOI }
 
