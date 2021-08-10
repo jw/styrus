@@ -1,3 +1,5 @@
-hello
-there
-rust
+h1:
+  bar = foo
+  one = een
+h2
+  fizz=fuzz

@@ -1,20 +1,24 @@
 
 WHITESPACE = _{ " " | "\t" }
-// COMMENT = _{ "/*" ~ (!"*/" ~ ANY)* ~ "*/" }
+INDENT = _{ " " | "\t" }
 
-ident = @{ ASCII_ALPHA ~ (ASCII_ALPHANUMERIC)* }
+COLON = _{ ":" }
+EQUALS = _{ "=" }
 
-char = { ASCII_ALPHANUMERIC | "." | "_" | "/" }
+ident = { ASCII_ALPHA ~ (ASCII_ALPHANUMERIC)* }
+name = { ASCII_ALPHA ~ (ASCII_ALPHANUMERIC)* }
+value = { ASCII_ALPHA ~ (ASCII_ALPHANUMERIC)* }
 
-name = @{ char+ }
-value = @{ char* }
-property = { name ~ "=" ~ value }
+rule = { selector ~ NEWLINE ~ (propertyLine)+ }
 
-selector = @{ ident }
+selector = { ident ~ (COLON)? }
 
-rule = @{ selector }  // block of declarations
+propertyLine = { // (INDENT)+ ~
+    property ~ NEWLINE
+}
+property = { name ~ (EQUALS)? ~ value }
 
-stylus = _{ SOI ~ (rule ~ NEWLINE)* ~ EOI }
+stylus = { SOI ~ (rule)* ~ EOI }
 
 
 // item = { (!"\n" ~ ANY)* }
