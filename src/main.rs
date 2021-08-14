@@ -32,7 +32,7 @@ fn main() {
 fn parse(source: &str) -> Result<Vec<AstNode>, Error<Rule>> {
     let mut ast = vec![];
 
-    let rules = StylusParser::parse(Rule::stylus, &source)?.next().unwrap();
+    let rules = StylusParser::parse(Rule::stylus, source)?.next().unwrap();
 
     for rule in rules.into_inner() {
         match rule.as_rule() {
