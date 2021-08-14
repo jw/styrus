@@ -11,7 +11,6 @@ use pest::Parser;
 #[grammar = "stylus.pest"]
 struct StylusParser;
 
-
 #[derive(Debug)]
 pub enum AstNode {
     Property {
@@ -24,16 +23,13 @@ pub enum AstNode {
     },
 }
 
-
 fn main() {
-    let unparsed_file = fs::read_to_string("stylus.stylus")
-        .expect("cannot read stylus file");
+    let unparsed_file = fs::read_to_string("stylus.stylus").expect("cannot read stylus file");
     let astnode = parse(&unparsed_file).expect("unsuccessful parse");
     println!("{:?}", &astnode);
 }
 
-
-fn parse(source: &str) -> Result<Vec<AstNode>, Error<Rule>>{
+fn parse(source: &str) -> Result<Vec<AstNode>, Error<Rule>> {
     let mut ast = vec![];
 
     let rules = StylusParser::parse(Rule::stylus, &source)?.next().unwrap();
@@ -44,10 +40,10 @@ fn parse(source: &str) -> Result<Vec<AstNode>, Error<Rule>>{
                 let mut inner_rules = rule.into_inner();
                 let selector = AstNode::Selector {
                     ident: inner_rules.next().unwrap().as_str().to_string(),
-                    properties: build_ast_from_property_lines(inner_rules)
+                    properties: build_ast_from_property_lines(inner_rules),
                 };
                 ast.push(selector);
-            },
+            }
             Rule::EOI => (),
             _ => unreachable!(),
         }
@@ -55,7 +51,6 @@ fn parse(source: &str) -> Result<Vec<AstNode>, Error<Rule>>{
 
     Ok(ast)
 }
-
 
 fn build_ast_from_property_lines(pairs: pest::iterators::Pairs<Rule>) -> Vec<AstNode> {
     let mut ast = vec![];
@@ -65,13 +60,12 @@ fn build_ast_from_property_lines(pairs: pest::iterators::Pairs<Rule>) -> Vec<Ast
                 for property in pair.into_inner() {
                     ast.push(build_ast_for_property(property));
                 }
-            },
+            }
             _ => unreachable!(),
         }
     }
     ast
 }
-
 
 fn build_ast_for_property(property: pest::iterators::Pair<Rule>) -> AstNode {
     let mut inner_rules = property.into_inner();
@@ -81,12 +75,11 @@ fn build_ast_for_property(property: pest::iterators::Pair<Rule>) -> AstNode {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
 
-    use pest::parses_to;
     use pest::consumes_to;
+    use pest::parses_to;
 
     #[derive(Parser)]
     #[grammar = "stylus.pest"]
@@ -117,5 +110,4 @@ mod tests {
             ]
         };
     }
-
 }
