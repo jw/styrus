@@ -4,6 +4,8 @@ extern crate pest_derive;
 
 use std::fs;
 
+use clap::Clap;
+
 use pest::error::Error;
 use pest::Parser;
 
@@ -23,10 +25,22 @@ pub enum AstNode {
     },
 }
 
+#[derive(Clap)]
+#[clap(version = "0.1.0", author = "Jan Willems <jw@elevenbits.com>")]
+struct Opts {
+    source: String,
+    #[clap(short, long, parse(from_occurrences))]
+    verbose: i32,
+}
+
 fn main() {
-    let unparsed_file = fs::read_to_string("stylus.stylus").expect("cannot read stylus file");
+    let opts: Opts = Opts::parse();
+    if opts.verbose > 0 {
+        println!("Compiling {}...", opts.source);
+    }
+    let unparsed_file = fs::read_to_string(opts.source).expect("cannot read stylus file");
     let astnode = parse(&unparsed_file).expect("unsuccessful parse");
-    println!("{:?}", &astnode);
+    println!("Result: {:?}", &astnode);
 }
 
 fn parse(source: &str) -> Result<Vec<AstNode>, Error<Rule>> {
