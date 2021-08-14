@@ -145,7 +145,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "stirust"
+name = "styrus"
 version = "0.1.0"
 dependencies = [
  "pest",

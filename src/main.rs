@@ -7,9 +7,6 @@ use std::fs;
 use pest::error::Error;
 use pest::Parser;
 
-use pest::parses_to;
-use pest::consumes_to;
-
 #[derive(Parser)]
 #[grammar = "stylus.pest"]
 struct StylusParser;
@@ -85,28 +82,40 @@ fn build_ast_for_property(property: pest::iterators::Pair<Rule>) -> AstNode {
 }
 
 
-#[test]
-fn simple() {
-    parses_to! {
+#[cfg(test)]
+mod tests {
+
+    use pest::parses_to;
+    use pest::consumes_to;
+
+    #[derive(Parser)]
+    #[grammar = "stylus.pest"]
+    struct StylusParser;
+
+    #[test]
+    fn simple() {
+        parses_to! {
         parser: StylusParser,
-        input: "abc:\n  def = klm",
-        rule: Rule::stylus,
-        tokens: [
-            stylus(0, 16, [
-                rule(0, 16, [
-                    selector(0, 4, [
-                            ident(0, 3),
-                        ]
-                    ),
-                    propertyLine(7, 16, [
-                        property(7, 16, [
-                            name(7, 10),
-                            value(13, 16),
+            input: "abc:\n  def = klm",
+            rule: Rule::stylus,
+            tokens: [
+                stylus(0, 16, [
+                    rule(0, 16, [
+                        selector(0, 4, [
+                                ident(0, 3),
+                            ]
+                        ),
+                        propertyLine(7, 16, [
+                            property(7, 16, [
+                                name(7, 10),
+                                value(13, 16),
+                            ])
                         ])
-                    ])
-                ]),
-                EOI(16, 16),
-            ])
-        ]
-    };
+                    ]),
+                    EOI(16, 16),
+                ])
+            ]
+        };
+    }
+
 }
