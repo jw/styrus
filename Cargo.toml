@@ -1,6 +1,6 @@
 [package]
 name = "styrus"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2018"
 description = "Stylus css compiler in Rust."
 authors = ["Jan Willems <jw@elevenbits.com>"]

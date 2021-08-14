@@ -26,7 +26,7 @@ pub enum AstNode {
 }
 
 #[derive(Clap)]
-#[clap(version = "0.1.0", author = "Jan Willems <jw@elevenbits.com>")]
+#[clap(version = "0.1.1", author = "Jan Willems <jw@elevenbits.com>")]
 struct Opts {
     source: String,
     #[clap(short, long, parse(from_occurrences))]
