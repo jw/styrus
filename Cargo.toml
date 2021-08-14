@@ -2,8 +2,15 @@
 name = "styrus"
 version = "0.1.0"
 edition = "2018"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+description = "Stylus css compiler in Rust."
+authors = ["Jan Willems <jw@elevenbits.com>"]
+homepage = "https://github.com/jw/styrus"
+repository = "https://github.com/jw/styrus"
+documentation = "https://github.com/jw/styrus"
+keywords = ["styrus", "compiler", "css", "stylus"]
+categories = ["compilers", "command-line-utilities", "web-programming", "encoding"]
+license = "AGPL-3.0-or-later"
+readme = "README.md"
 
 [dependencies]
 pest = "2.1.0"
