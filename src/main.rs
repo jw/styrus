@@ -49,45 +49,42 @@ fn parse(source: &str) -> Result<Vec<AstNode>, Error<Rule>> {
     let rules = StylusParser::parse(Rule::stylus, source)?.next().unwrap();
 
     for rule in rules.into_inner() {
-        match rule.as_rule() {
-            Rule::rule => {
-                let mut inner_rules = rule.into_inner();
-                let selector = AstNode::Selector {
-                    ident: inner_rules.next().unwrap().as_str().to_string(),
-                    properties: build_ast_from_property_lines(inner_rules),
-                };
-                ast.push(selector);
-            }
-            Rule::EOI => (),
-            _ => unreachable!(),
-        }
+        println!("rule: {:?}", rule);
     }
+
+    // for rule in rules.into_inner() {
+    //     match rule.as_rule() {
+    //         Rule::rule => {
+    //             let mut inner_rules = rule.into_inner();
+    //             let selector = AstNode::Selector {
+    //                 ident: inner_rules.next().unwrap().as_str().to_string(),
+    //                 properties: build_ast_from_property_lines(inner_rules),
+    //             };
+    //             ast.push(selector);
+    //         }
+    //         Rule::EOI => (),
+    //         _ => unreachable!(),
+    //     }
+    // }
 
     Ok(ast)
 }
 
-fn build_ast_from_property_lines(pairs: pest::iterators::Pairs<Rule>) -> Vec<AstNode> {
-    let mut ast = vec![];
-    for pair in pairs {
-        match pair.as_rule() {
-            Rule::propertyLine => {
-                for property in pair.into_inner() {
-                    ast.push(build_ast_for_property(property));
-                }
-            }
-            _ => unreachable!(),
-        }
-    }
-    ast
-}
+// fn build_ast_from_property_lines(pairs: pest::iterators::Pairs<Rule>) -> Vec<AstNode> {
+//     let mut ast = vec![];
+//     for pair in pairs {
+//         match pair.as_rule() {
+//             Rule::propertyLine => {
+//                 for property in pair.into_inner() {
+//                     ast.push(build_ast_for_property(property));
+//                 }
+//             }
+//             _ => unreachable!(),
+//         }
+//     }
+//     ast
+// }
 
-fn build_ast_for_property(property: pest::iterators::Pair<Rule>) -> AstNode {
-    let mut inner_rules = property.into_inner();
-    AstNode::Property {
-        name: inner_rules.next().unwrap().as_str().to_string(),
-        value: inner_rules.next().unwrap().as_str().to_string(),
-    }
-}
 
 #[cfg(test)]
 mod tests {

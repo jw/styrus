@@ -1,4 +1,12 @@
 
+// Stylus
+
+// +/- selector
+// +/- comment
+
+// SPECIAL_COMMENT = { "/*!" ~ (!"*/" ~ ANY)* ~ "*/" ~ NEWLINE? }
+COMMENT = _{ "/*" ~ (!"*/" ~ ANY)* ~ "*/" | "//" ~ (!NEWLINE ~ ANY)* }
+
 WHITESPACE = _{ " " | "\t" }
 INDENT = _{ " " | "\t" }
 EMPTYLINE = @{ NEWLINE }
@@ -6,17 +14,15 @@ EMPTYLINE = @{ NEWLINE }
 COLON = _{ ":" }
 EQUALS = _{ "=" }
 
-ident = { ASCII_ALPHA ~ (ASCII_ALPHANUMERIC)* }
+ident = { (ASCII_ALPHANUMERIC | "-")+ }
 name = { ASCII_ALPHA ~ (ASCII_ALPHANUMERIC)* }
-value = { ASCII_ALPHA ~ (ASCII_ALPHANUMERIC)* }
+value = { (ASCII_ALPHANUMERIC)+ }
 
-rule = { selector ~ NEWLINE ~ (propertyLine)+ | EMPTYLINE }
+rule = { selectors ~ NEWLINE? | EMPTYLINE }
 
-selector = { ident ~ (COLON)? }
-
-propertyLine = { // (INDENT)+ ~
-    property ~ NEWLINE?
-}
-property = { name ~ "="? ~ value }
+prefix = { "#" | "." | ":"}
+separator = { "," | ">" }
+selector = { "*" | "*"? ~ prefix? ~ ident ~ separator? }
+selectors = { selector+ }
 
 stylus = { SOI ~ (rule)* ~ EOI }
