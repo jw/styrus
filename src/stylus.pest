@@ -7,22 +7,29 @@
 // SPECIAL_COMMENT = { "/*!" ~ (!"*/" ~ ANY)* ~ "*/" ~ NEWLINE? }
 COMMENT = _{ "/*" ~ (!"*/" ~ ANY)* ~ "*/" | "//" ~ (!NEWLINE ~ ANY)* }
 
-WHITESPACE = _{ " " | "\t" }
-INDENT = _{ " " | "\t" }
+INDENT = { " " | "\t" }
+START = { "S" }
+
 EMPTYLINE = @{ NEWLINE }
+
+WHITESPACE = _{ " " | "\t" }
 
 COLON = _{ ":" }
 EQUALS = _{ "=" }
 
-ident = { (ASCII_ALPHANUMERIC | "-")+ }
-name = { ASCII_ALPHA ~ (ASCII_ALPHANUMERIC)* }
+ident = { (ASCII_ALPHANUMERIC | "-")+ }  // minus!
+name = { (ASCII_ALPHANUMERIC)+ }
 value = { (ASCII_ALPHANUMERIC)+ }
 
-rule = { selectors ~ NEWLINE? | EMPTYLINE }
+rule = { selectors ~ NEWLINE ~ PEEK_ALL ~ (propertyLine)+ | EMPTYLINE }
 
 prefix = { "#" | "." | ":"}
 separator = { "," | ">" }
 selector = { "*" | "*"? ~ prefix? ~ ident ~ separator? }
 selectors = { selector+ }
 
+propertyLine = ${ START ~ INDENT+ ~ property ~ NEWLINE?}
+property = { name } // ~ ":"? ~ value+ }
+
+// stylus = { SOI ~ (rule)* ~ EOI }
 stylus = { SOI ~ (rule)* ~ EOI }

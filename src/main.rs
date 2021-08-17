@@ -10,7 +10,7 @@ use pest::error::Error;
 use pest::Parser;
 
 #[derive(Parser)]
-#[grammar = "stylus.pest"]
+#[grammar = "indent.pest"]
 struct StylusParser;
 
 #[derive(Debug)]
@@ -51,6 +51,10 @@ fn parse(source: &str) -> Result<Vec<AstNode>, Error<Rule>> {
     for rule in rules.into_inner() {
         println!("rule: {:?}", rule);
     }
+    // for token in rules.tokens() {
+    //     println!("token: {:?}", token);
+    // }
+
 
     // for rule in rules.into_inner() {
     //     match rule.as_rule() {
@@ -99,7 +103,7 @@ mod tests {
     #[test]
     fn simple() {
         parses_to! {
-        parser: StylusParser,
+            parser: StylusParser,
             input: "abc:\n  def = klm",
             rule: Rule::stylus,
             tokens: [
@@ -121,4 +125,22 @@ mod tests {
             ]
         };
     }
+
+
+    #[test]
+    fn propertyLine() {
+        parses_to! {
+            parser: StylusParser,
+            input: "one two",
+            rule: Rule::propertyLine,
+            tokens: [
+                propertyLine(0, 7, [
+                    property(0, 7, [
+                        name(0, 7)
+                    ])
+                ])
+            ]
+        };
+    }
+
 }
