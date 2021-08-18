@@ -3,6 +3,7 @@
 
 // +/- selector
 // +/- comment
+// - property
 
 // SPECIAL_COMMENT = { "/*!" ~ (!"*/" ~ ANY)* ~ "*/" ~ NEWLINE? }
 COMMENT = _{ "/*" ~ (!"*/" ~ ANY)* ~ "*/" | "//" ~ (!NEWLINE ~ ANY)* }
@@ -17,10 +18,14 @@ WHITESPACE = _{ " " | "\t" }
 COLON = _{ ":" }
 EQUALS = _{ "=" }
 
-ident = { (ASCII_ALPHANUMERIC | "-")+ }  // minus!
-name = { (ASCII_ALPHANUMERIC)+ }
-value = { (ASCII_ALPHANUMERIC)+ }
+word = _{ (ASCII_ALPHANUMERIC)+ }
 
+ident = { (ASCII_ALPHANUMERIC | "-")+ }  // minus!
+name = { word }
+value = { word }
+values = ${ value ~ ((WHITESPACE)+ ~ value)* }
+
+rules = { (rule ~ NEWLINE)* }
 rule = { selectors ~ NEWLINE ~ PEEK_ALL ~ (propertyLine)+ | EMPTYLINE }
 
 prefix = { "#" | "." | ":"}
@@ -28,8 +33,12 @@ separator = { "," | ">" }
 selector = { "*" | "*"? ~ prefix? ~ ident ~ separator? }
 selectors = { selector+ }
 
-propertyLine = ${ START ~ INDENT+ ~ property ~ NEWLINE?}
-property = { name } // ~ ":"? ~ value+ }
+propertyLine = _{ indentation ~ property}
+indentation = ${ NEWLINE ~ PEEK_ALL }
+indentation_push = ${ indentation ~ PUSH(spaces)}
+spaces = _{ WHITESPACE+ }
 
-// stylus = { SOI ~ (rule)* ~ EOI }
-stylus = { SOI ~ (rule)* ~ EOI }
+properties = { indentation_push ~ property ~ DROP }
+property = ${ name ~ (WHITESPACE | ":") ~ (WHITESPACE)* ~ values ~ (propertyLine)? }
+
+stylus = _{ SOI ~ rules ~ EOI }

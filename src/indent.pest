@@ -1,5 +1,5 @@
 
-WHITESPACE = _{ " " }
+WHITESPACE = _{ " " | "\t" }
 
 word = _{ (ASCII_ALPHANUMERIC)+ }
 
@@ -7,28 +7,16 @@ name = { word }
 value = { word }
 values = ${ value ~ ((WHITESPACE)+ ~ value)* }
 
-selector = { word }
+selector = { word | NEWLINE }
 
 rules = { (rule ~ NEWLINE)* }
-rule = { selector ~ (property_line)? }
+rule = { selector ~ (property_line)* }
 property_line = _{ indentation ~ property }
 indentation = ${ NEWLINE ~ PEEK_ALL }
 indentation_push = ${ indentation ~ PUSH(spaces)}
-spaces = _{ (" " | "\t")+ }
+spaces = _{ WHITESPACE+ }
 
 properties = { indentation_push ~ property ~ DROP }
 property = ${ name ~ (WHITESPACE | ":") ~ (WHITESPACE)* ~ values ~ (property_line)? }
 
-stylus = {SOI ~ rules ~ EOI }
-
-
-
-
-// property_line = _{ identation ~ property } // rule }
-//
-// identation = ${ "\n" ~ PEEK_ALL }
-// identation_push = ${ identation ~ PUSH(space) }
-//
-// space = _{ (" " | "\t")+ }
-// properties = { identation_push ~ (property) ~ DROP }
-
+stylus = _{SOI ~ rules ~ EOI }
