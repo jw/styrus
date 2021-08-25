@@ -1,0 +1,16 @@
+WHITESPACE = _{ " " | "\t" }
+
+stylus = {SOI ~ rules ~ EOI }
+
+word = _{ (ASCII_ALPHANUMERIC)+ }
+
+rules = { rule* }
+
+rule = { (selector ~ properties ~ NEWLINE) | NEWLINE}
+
+properties = { property+ }
+
+property = { indent ~ word+ }
+selector = { word+ }
+
+indent = ${ NEWLINE ~ " "+ }

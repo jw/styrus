@@ -7,7 +7,7 @@ name = { word }
 value = { word }
 values = ${ value ~ ((WHITESPACE)+ ~ value)* }
 
-selector = { word | NEWLINE }
+selector = { word }
 
 rules = { (rule ~ NEWLINE)* }
 rule = { selector ~ (property_line)* }
