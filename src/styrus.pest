@@ -3,14 +3,20 @@ WHITESPACE = _{ " " | "\t" }
 stylus = {SOI ~ rules ~ EOI }
 
 word = _{ (ASCII_ALPHANUMERIC)+ }
+identifier =  ${ (ASCII_ALPHANUMERIC | "-")+ }
 
 rules = { rule* }
+rule = { (selectors ~ properties ~ NEWLINE) | NEWLINE}
 
-rule = { (selector ~ properties ~ NEWLINE) | NEWLINE}
-
+// properties
 properties = { property+ }
-
 property = { indent ~ word+ }
-selector = { word+ }
+
+// selectors
+asterisk = { "*" }
+prefix = { "#" | "." | ":"}
+separator = { "," | ">" | "~" | "+" }
+selector = { asterisk | asterisk? ~ prefix? ~ identifier ~ separator? }
+selectors = { selector+ }
 
 indent = ${ NEWLINE ~ " "+ }

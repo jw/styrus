@@ -1,0 +1,20 @@
+
+- selector (one line)
+- selector (multiline)
+- property name ":"? values+
+
+- cleanup of ast (\n and spaces)
+- add dedent (and stacking)
+- proper test behaviour
+
+- create first compile:
+
+h1
+  border px1
+
+h1 {
+  border: px1;
+}
+
+- comments: // and /* hidden comments /*
+- comments: /*! stuff that will be part of css */

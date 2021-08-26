@@ -8,6 +8,7 @@ use std::fs;
 
 use clap::Clap;
 
+use crate::AstNode::{Asterisk, Identifier, Prefix, Separator};
 use pest::error::Error;
 use pest::iterators::Pair;
 use pest::Parser;
@@ -18,19 +19,20 @@ struct StylusParser;
 
 #[derive(Debug)]
 pub enum AstNode {
+    Asterisk(bool),
+    Prefix(String),
+    Identifier(String),
+    Separator(String),
+    Selector(Vec<AstNode>),
+
     Property {
-        // name: String,
-        // values: Vec<String>,
         words: Vec<String>,
     },
-    Selector {
-        words: Vec<String>,
-    },
+
     Rule {
-        selector: Box<AstNode>,
+        selectors: Vec<AstNode>,
         properties: Vec<AstNode>,
     },
-    NOP {},
 }
 
 #[derive(Clap)]
@@ -57,11 +59,9 @@ fn main() {
 fn parse(source: &str) -> Result<Vec<AstNode>, Error<Rule>> {
     let mut ast = vec![];
     let rules = StylusParser::parse(Rule::rules, source)?.next().unwrap();
-    // println!("RULES: {:#?}", rules);
     for rule in rules.into_inner() {
         match rule.as_rule() {
             Rule::rule => {
-                log::debug!("Creating rule...");
                 ast.push(create_rule(rule));
             }
             _ => unreachable!(),
@@ -71,16 +71,13 @@ fn parse(source: &str) -> Result<Vec<AstNode>, Error<Rule>> {
 }
 
 fn create_rule(rule: Pair<Rule>) -> AstNode {
-    log::info!("rule: {:?}", rule);
-    let mut selector = AstNode::Selector { words: vec![] };
+    let mut selectors = vec![];
     let mut properties = vec![];
     let inner_rules = rule.into_inner();
-    println!("RULES: {:?}", inner_rules.clone());
-    log::info!("selector and properties: {:?}", inner_rules);
     for rule in inner_rules {
         match rule.as_rule() {
-            Rule::selector => {
-                selector = create_selector(rule);
+            Rule::selectors => {
+                selectors = create_selectors(rule.into_inner());
             }
             Rule::properties => {
                 properties = create_properties(rule);
@@ -89,34 +86,59 @@ fn create_rule(rule: Pair<Rule>) -> AstNode {
         }
     }
     AstNode::Rule {
-        selector: Box::new(selector),
+        selectors,
         properties,
     }
 }
 
-fn create_selector(rule: Pair<Rule>) -> AstNode {
-    let selector = AstNode::Selector {
-        words: vec![rule.as_str().to_string()],
-    };
-    selector
+fn create_selectors(rules: pest::iterators::Pairs<Rule>) -> Vec<AstNode> {
+    let mut selectors = vec![];
+    for rule in rules {
+        match rule.as_rule() {
+            Rule::selector => {
+                let selector = create_selector(rule.into_inner());
+                selectors.push(selector);
+            }
+            _ => unreachable!(),
+        }
+    }
+    selectors
+}
+
+fn create_selector(rules: pest::iterators::Pairs<Rule>) -> AstNode {
+    let mut nodes = vec![];
+    for rule in rules {
+        match rule.as_rule() {
+            Rule::asterisk => {
+                nodes.push(Asterisk(true));
+            }
+            Rule::prefix => {
+                nodes.push(Prefix(rule.as_str().to_string()));
+            }
+            Rule::identifier => {
+                nodes.push(Identifier(rule.as_str().to_string()));
+            }
+            Rule::separator => {
+                nodes.push(Separator(rule.as_str().to_string()));
+            }
+            _ => unreachable!(),
+        }
+    }
+    AstNode::Selector(nodes)
 }
 
 fn create_properties(rule: Pair<Rule>) -> Vec<AstNode> {
     let mut properties = vec![];
     for pair in rule.into_inner() {
-        log::info!("-> pair: {:?}", pair);
         properties.push(create_property(pair))
     }
     properties
 }
 
 fn create_property(pair: Pair<Rule>) -> AstNode {
-    let property = AstNode::Property {
-        // name: name,
-        // values: values
+    AstNode::Property {
         words: vec![pair.as_str().to_string()],
-    };
-    property
+    }
 }
 
 #[cfg(test)]
@@ -162,58 +184,48 @@ mod tests {
     }
 
     #[test]
-    fn selector_property() {
-        parses_to! {
-            parser: StylusParser,
-            input: "selector\n    property\n",
-            rule: Rule::stylus,
-            tokens: [
-                stylus(0, 22, [
-                    rules(0, 22, [
-                        rule(0, 22, [
-                            selector(0, 8),
-                            properties(8, 21, [
-                                property(8, 21, [
-                                    indent(8, 13)
-                                ])
-                            ])
-                        ])
-                    ]),
-                    EOI(22, 22)
-                ])
-            ]
-        }
-    }
-
-    #[test]
     fn complete() {
         parses_to! {
             parser: StylusParser,
-            input: "selector\n    property\n\n\nfoo bar\n  fizz fuzz\n",
+            input: "*h1 > p\n  border 1px\n\nh2\n  padding 1px 1px 1px 1px\n",
             rule: Rule::stylus,
             tokens: [
-                stylus(0, 44, [
-                    rules(0, 44, [
-                        rule(0, 22, [
-                            selector(0, 8),
-                            properties(8, 21, [
-                                property(8, 21, [
-                                    indent(8, 13)
+                stylus(0, 51, [
+                    rules(0, 51, [
+                        rule(0, 21, [
+                            selectors(0, 7, [
+                                selector(0, 1, [
+                                    asterisk(0, 1)
+                                ]),
+                                selector(1, 5, [
+                                    identifier(1, 3, []),
+                                    separator(4, 5, [])
+                                ]),
+                                selector(6, 7, [
+                                    identifier(6, 7, [])
+                                ])
+                            ]),
+                            properties(7, 20, [
+                                property(7, 20, [
+                                    indent(7, 10, [])
                                 ])
                             ])
                         ]),
-                        rule(22, 23),
-                        rule(23, 24),
-                        rule(24, 44, [
-                            selector(24, 31),
-                            properties(31, 43, [
-                                property(31, 43, [
-                                    indent(31, 34)
+                        rule(21, 22, []),
+                        rule(22, 51, [
+                            selectors(22, 24, [
+                                selector(22, 24, [
+                                    identifier(22, 24)
+                                ])
+                            ]),
+                            properties(24, 50, [
+                                property(24, 50, [
+                                    indent(24, 27)
                                 ])
                             ])
                         ])
                     ]),
-                    EOI(44, 44)
+                    EOI(51, 51),
                 ])
             ]
         }

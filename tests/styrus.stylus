@@ -1,7 +1,5 @@
-selector
-    property
+*h1 > p
+  border 1px
 
-
-foo bar
-  fizz fuzz
-  wee wie
+h2
+  padding 1px 1px 1px 1px

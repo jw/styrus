@@ -1,8 +1,5 @@
-hello
- there
- somewhere
+*h1 > p
+  border 1px
 
-foo bar
- border 1px bold
- fizz
- fuzz
+h2
+  padding 1px 1px 1px 1px
