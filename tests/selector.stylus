@@ -1,0 +1,15 @@
+abc
+h1 feocuc
+one, two
+*
+ul :odd
+#foo
+#foo #bar
+.null .foo
+*:before
+ul > li
+a:hover
+a:hover button
+ul > a:hover
+ul > li:last-child
+#for .foo

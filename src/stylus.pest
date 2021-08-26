@@ -1,22 +1,44 @@
 
-WHITESPACE = _{ " " | "\t" }
-INDENT = _{ " " | "\t" }
+// Stylus
+
+// +/- selector
+// +/- comment
+// - property
+
+// SPECIAL_COMMENT = { "/*!" ~ (!"*/" ~ ANY)* ~ "*/" ~ NEWLINE? }
+COMMENT = _{ "/*" ~ (!"*/" ~ ANY)* ~ "*/" | "//" ~ (!NEWLINE ~ ANY)* }
+
+INDENT = { " " | "\t" }
+START = { "S" }
+
 EMPTYLINE = @{ NEWLINE }
+
+WHITESPACE = _{ " " | "\t" }
 
 COLON = _{ ":" }
 EQUALS = _{ "=" }
 
-ident = { ASCII_ALPHA ~ (ASCII_ALPHANUMERIC)* }
-name = { ASCII_ALPHA ~ (ASCII_ALPHANUMERIC)* }
-value = { ASCII_ALPHA ~ (ASCII_ALPHANUMERIC)* }
+word = _{ (ASCII_ALPHANUMERIC)+ }
 
-rule = { selector ~ NEWLINE ~ (propertyLine)+ | EMPTYLINE }
+ident = { (ASCII_ALPHANUMERIC | "-")+ }  // minus!
+name = { word }
+value = { word }
+values = ${ value ~ ((WHITESPACE)+ ~ value)* }
 
-selector = { ident ~ (COLON)? }
+rules = { (rule ~ NEWLINE)* }
+rule = { selectors ~ NEWLINE ~ PEEK_ALL ~ (propertyLine)+ | EMPTYLINE }
 
-propertyLine = { // (INDENT)+ ~
-    property ~ NEWLINE?
-}
-property = { name ~ "="? ~ value }
+prefix = { "#" | "." | ":"}
+separator = { "," | ">" }
+selector = { "*" | "*"? ~ prefix? ~ ident ~ separator? }
+selectors = { selector+ }
 
-stylus = { SOI ~ (rule)* ~ EOI }
+propertyLine = _{ indentation ~ property}
+indentation = ${ NEWLINE ~ PEEK_ALL }
+indentation_push = ${ indentation ~ PUSH(spaces)}
+spaces = _{ WHITESPACE+ }
+
+properties = { indentation_push ~ property ~ DROP }
+property = ${ name ~ (WHITESPACE | ":") ~ (WHITESPACE)* ~ values ~ (propertyLine)? }
+
+stylus = _{ SOI ~ rules ~ EOI }
