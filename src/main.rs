@@ -28,7 +28,7 @@ pub enum AstNode {
         words: Vec<String>,
     },
 
-    CssRule {
+    Rule {
         selectors: Vec<AstNode>,
         properties: Vec<AstNode>,
     },
@@ -64,7 +64,7 @@ impl Visitor for Compiler {
                     print!("{}", word);
                 }
             }
-            AstNode::CssRule {
+            AstNode::Rule {
                 selectors,
                 properties,
             } => {
@@ -137,7 +137,7 @@ fn create_rule(rule: Pair<Rule>) -> AstNode {
             _ => unreachable!(),
         }
     }
-    AstNode::CssRule {
+    AstNode::Rule {
         selectors,
         properties,
     }
