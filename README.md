@@ -26,3 +26,9 @@ A compile renders:
     h2 {
       padding 1px 1px 1px 1px
     }
+
+## Environment variable
+
+The `RUST_LOG` can be set to `info` to get all the details of the AST.
+
+Like `RUST_LOG=info styrus tests/test.stylus`.
