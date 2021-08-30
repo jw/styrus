@@ -1,5 +1,5 @@
 
-- selector (one line)
+- plain selector (one line) (done)
 - selector (multiline)
 - property name ":"? values+
 
@@ -9,12 +9,11 @@
 
 - create first compile:
 
-h1
-  border px1
+*h1 > p
+  border 1px
 
-h1 {
-  border: px1;
-}
+h2
+  padding 1px 1px 1px 1px
 
 - comments: // and /* hidden comments /*
 - comments: /*! stuff that will be part of css */
