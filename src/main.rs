@@ -8,7 +8,6 @@ use std::fs;
 
 use clap::Clap;
 
-use crate::AstNode::{Asterisk, Identifier, Prefix, Separator};
 use pest::error::Error;
 use pest::iterators::Pair;
 use pest::Parser;
@@ -17,7 +16,7 @@ use pest::Parser;
 #[grammar = "styrus.pest"]
 struct StylusParser;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum AstNode {
     Asterisk(bool),
     Prefix(String),
@@ -29,10 +28,56 @@ pub enum AstNode {
         words: Vec<String>,
     },
 
-    Rule {
+    CssRule {
         selectors: Vec<AstNode>,
         properties: Vec<AstNode>,
     },
+}
+
+trait Visitor {
+    fn visit(&mut self, node: &AstNode);
+}
+
+struct Compiler;
+impl Visitor for Compiler {
+    fn visit(&mut self, node: &AstNode) {
+        match node {
+            AstNode::Asterisk(_) => {
+                print!("* ");
+            }
+            AstNode::Prefix(prefix) => {
+                print!("{} ", prefix);
+            }
+            AstNode::Separator(separator) => {
+                print!("{} ", separator);
+            }
+            AstNode::Identifier(identifier) => {
+                print!("{} ", identifier);
+            }
+            AstNode::Selector(selectors) => {
+                for selector in selectors {
+                    self.visit(selector);
+                }
+            }
+            AstNode::Property { words } => {
+                for word in words {
+                    print!("{}", word);
+                }
+            }
+            AstNode::CssRule {
+                selectors,
+                properties,
+            } => {
+                for selector in selectors {
+                    self.visit(selector);
+                }
+                for word in properties {
+                    self.visit(word);
+                }
+                println!();
+            }
+        }
+    }
 }
 
 #[derive(Clap)]
@@ -51,9 +96,16 @@ fn main() {
     }
     log::info!("Compiling {}...", opts.source);
     let unparsed_file = fs::read_to_string(opts.source).expect("cannot read stylus file");
-    let astnode = parse(&unparsed_file).expect("unsuccessful parse");
-    println!("Result: {:?}", &astnode);
-    log::info!("Result: {:#?}", &astnode)
+    let ast = parse(&unparsed_file).expect("unsuccessful parse");
+    log::info!("AST: {:#?}", &ast);
+    compile(ast);
+}
+
+fn compile(ast: Vec<AstNode>) {
+    let mut compiler = Compiler;
+    for node in ast {
+        compiler.visit(&node);
+    }
 }
 
 fn parse(source: &str) -> Result<Vec<AstNode>, Error<Rule>> {
@@ -85,7 +137,7 @@ fn create_rule(rule: Pair<Rule>) -> AstNode {
             _ => unreachable!(),
         }
     }
-    AstNode::Rule {
+    AstNode::CssRule {
         selectors,
         properties,
     }
@@ -110,16 +162,16 @@ fn create_selector(rules: pest::iterators::Pairs<Rule>) -> AstNode {
     for rule in rules {
         match rule.as_rule() {
             Rule::asterisk => {
-                nodes.push(Asterisk(true));
+                nodes.push(AstNode::Asterisk(true));
             }
             Rule::prefix => {
-                nodes.push(Prefix(rule.as_str().to_string()));
+                nodes.push(AstNode::Prefix(rule.as_str().to_string()));
             }
             Rule::identifier => {
-                nodes.push(Identifier(rule.as_str().to_string()));
+                nodes.push(AstNode::Identifier(rule.as_str().to_string()));
             }
             Rule::separator => {
-                nodes.push(Separator(rule.as_str().to_string()));
+                nodes.push(AstNode::Separator(rule.as_str().to_string()));
             }
             _ => unreachable!(),
         }
