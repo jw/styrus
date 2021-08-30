@@ -1,7 +1,6 @@
 
-Jan Willems, <jw@elevenbits.com>
 This is a Stylus compiler in Rust.
-Copyright (C) 2021, Jan Willems
+Copyright (C) 2021, Jan Willems <jw@elevenbits.com>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as published
