@@ -1,19 +1,8 @@
 
-- plain selector (one line) (done)
-- selector (multiline)
-- property name ":"? values+
-
+- selector (complete and multiline)
+- property (complete and multiline) e.g. name ":"? values+
 - cleanup of ast (\n and spaces)
 - add dedent (and stacking)
 - proper test behaviour
-
-- create first compile:
-
-*h1 > p
-  border 1px
-
-h2
-  padding 1px 1px 1px 1px
-
 - comments: // and /* hidden comments /*
 - comments: /*! stuff that will be part of css */

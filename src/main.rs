@@ -28,53 +28,58 @@ pub enum AstNode {
         words: Vec<String>,
     },
 
-    CssRule {
+    Rule {
         selectors: Vec<AstNode>,
         properties: Vec<AstNode>,
     },
 }
 
 trait Visitor {
-    fn visit(&mut self, node: &AstNode);
+    fn visit(&mut self, node: &AstNode) -> String;
 }
 
 struct Compiler;
 impl Visitor for Compiler {
-    fn visit(&mut self, node: &AstNode) {
+    fn visit(&mut self, node: &AstNode) -> String {
         match node {
-            AstNode::Asterisk(_) => {
-                print!("* ");
-            }
-            AstNode::Prefix(prefix) => {
-                print!("{} ", prefix);
-            }
+            AstNode::Asterisk(_) => "*".to_string(),
+            AstNode::Prefix(prefix) => prefix.to_string(),
             AstNode::Separator(separator) => {
-                print!("{} ", separator);
+                format!(" {} ", separator.to_string())
             }
-            AstNode::Identifier(identifier) => {
-                print!("{} ", identifier);
-            }
+            AstNode::Identifier(identifier) => identifier.to_string(),
             AstNode::Selector(selectors) => {
+                let mut out = String::new();
                 for selector in selectors {
-                    self.visit(selector);
+                    out = format!("{}{}", out, self.visit(selector));
                 }
+                out
             }
             AstNode::Property { words } => {
+                let mut out = String::new();
                 for word in words {
-                    print!("{}", word);
+                    out = format!("{}{}", out, word);
                 }
+                out
             }
-            AstNode::CssRule {
+            AstNode::Rule {
                 selectors,
                 properties,
             } => {
-                for selector in selectors {
-                    self.visit(selector);
+                let mut out = String::new();
+                if !selectors.is_empty() {
+                    for selector in selectors {
+                        out = format!("{}{}", out, self.visit(selector));
+                    }
+                    out += " {";
+                    for word in properties {
+                        out = format!("{}{}", out, self.visit(word));
+                    }
+                    out += "\n}"
+                } else {
+                    out = "\n".to_string();
                 }
-                for word in properties {
-                    self.visit(word);
-                }
-                println!();
+                out
             }
         }
     }
@@ -98,14 +103,17 @@ fn main() {
     let unparsed_file = fs::read_to_string(opts.source).expect("cannot read stylus file");
     let ast = parse(&unparsed_file).expect("unsuccessful parse");
     log::info!("AST: {:#?}", &ast);
-    compile(ast);
+    let css = compile(ast);
+    println!("{}", css);
 }
 
-fn compile(ast: Vec<AstNode>) {
+fn compile(ast: Vec<AstNode>) -> String {
     let mut compiler = Compiler;
+    let mut css = String::new();
     for node in ast {
-        compiler.visit(&node);
+        css = format!("{}{}", css, compiler.visit(&node));
     }
+    css
 }
 
 fn parse(source: &str) -> Result<Vec<AstNode>, Error<Rule>> {
@@ -137,7 +145,7 @@ fn create_rule(rule: Pair<Rule>) -> AstNode {
             _ => unreachable!(),
         }
     }
-    AstNode::CssRule {
+    AstNode::Rule {
         selectors,
         properties,
     }
