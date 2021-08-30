@@ -60,3 +60,31 @@ pub fn compile(ast: Vec<AstNode>) -> String {
     }
     css
 }
+
+#[test]
+fn nothing() {
+    use crate::parser::parse;
+    let ast = parse("").expect("unsuccessful parse");
+    let css = compile(ast);
+    assert_eq!(css, "");
+}
+
+#[test]
+fn one_empty_line() {
+    use crate::parser::parse;
+    let ast = parse("\n").expect("unsuccessful parse");
+    let css = compile(ast);
+    assert_eq!(css, "\n");
+}
+
+#[test]
+fn complete() {
+    use crate::parser::parse;
+    let ast = parse("*h1 > p\n  border 1px\n\nh2\n  padding 1px 1px 1px 1px\n")
+        .expect("unsuccessful parse");
+    let css = compile(ast);
+    assert_eq!(
+        css,
+        "*h1 > p {\n  border 1px\n}\nh2 {\n  padding 1px 1px 1px 1px\n}"
+    );
+}
