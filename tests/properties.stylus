@@ -13,3 +13,4 @@ a:hover button
 ul > a:hover
 ul > li:last-child
 #for .foo
+    foo: bar
