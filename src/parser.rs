@@ -1,3 +1,5 @@
+//! Parses the Stylus code into AstNodes.
+
 use crate::AstNode;
 
 #[derive(Parser)]
@@ -11,7 +13,9 @@ use pest::Parser;
 pub fn parse(source: &str) -> Result<Vec<AstNode>, Error<Rule>> {
     let mut ast = vec![];
     let rules = StylusParser::parse(Rule::rules, source)?.next().unwrap();
+    log::debug!("RULES: {:#?}", rules);
     for rule in rules.into_inner() {
+        log::debug!("RULE: {:?}", rule);
         match rule.as_rule() {
             Rule::rule => {
                 ast.push(create_rule(rule));
@@ -88,7 +92,27 @@ fn create_properties(rule: Pair<Rule>) -> Vec<AstNode> {
 }
 
 fn create_property(pair: Pair<Rule>) -> AstNode {
+    let mut indent = 0usize;
+    let mut name = "".to_string();
+    let mut values = vec![];
+    for p in pair.into_inner() {
+        match p.as_rule() {
+            Rule::indent => {
+                indent = p.as_str().chars().count() - 1;
+            }
+            Rule::name => {
+                name = p.as_str().to_string();
+            }
+            Rule::colon => {}
+            Rule::value => {
+                values.push(p.as_str().to_string());
+            }
+            _ => unreachable!(),
+        }
+    }
     AstNode::Property {
-        words: vec![pair.as_str().to_string()],
+        indent,
+        name,
+        values,
     }
 }

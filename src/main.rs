@@ -15,14 +15,19 @@ use crate::compiler::compile;
 
 #[derive(Debug, Clone)]
 pub enum AstNode {
+    Identifier(String),
+    Name(String),
+    Value(String),
+
     Asterisk(bool),
     Prefix(String),
-    Identifier(String),
     Separator(String),
     Selector(Vec<AstNode>),
 
     Property {
-        words: Vec<String>,
+        indent: usize,
+        name: String,
+        values: Vec<String>,
     },
 
     Rule {

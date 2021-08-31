@@ -1,3 +1,5 @@
+//! Compiles an AST of AstNodes to a css String.
+
 use crate::AstNode;
 
 trait Visitor {
@@ -15,6 +17,8 @@ impl Visitor for Compiler {
                 format!(" {} ", separator.to_string())
             }
             AstNode::Identifier(identifier) => identifier.to_string(),
+            AstNode::Name(_) => "".to_string(),
+            AstNode::Value(_) => "".to_string(),
             AstNode::Selector(selectors) => {
                 let mut out = String::new();
                 for selector in selectors {
@@ -22,11 +26,19 @@ impl Visitor for Compiler {
                 }
                 out
             }
-            AstNode::Property { words } => {
-                let mut out = String::new();
-                for word in words {
-                    out = format!("{}{}", out, word);
+            AstNode::Property {
+                indent,
+                name,
+                values,
+            } => {
+                let mut out = format!("{:width$}", " ", width = *indent as usize);
+                out += &name.to_string();
+                out += ": ";
+                for value in values {
+                    out = format!("{}{} ", out, value);
                 }
+                out = out.strip_suffix(' ').unwrap().to_string();
+                out += ";\n";
                 out
             }
             AstNode::Rule {
@@ -38,11 +50,11 @@ impl Visitor for Compiler {
                     for selector in selectors {
                         out = format!("{}{}", out, self.visit(selector));
                     }
-                    out += " {";
+                    out += " {\n";
                     for word in properties {
                         out = format!("{}{}", out, self.visit(word));
                     }
-                    out += "\n}"
+                    out += "}"
                 } else {
                     out = "\n".to_string();
                 }
@@ -85,6 +97,6 @@ fn complete() {
     let css = compile(ast);
     assert_eq!(
         css,
-        "*h1 > p {\n  border 1px\n}\nh2 {\n  padding 1px 1px 1px 1px\n}"
+        "*h1 > p {\n  border: 1px;\n}\nh2 {\n  padding: 1px 1px 1px 1px;\n}"
     );
 }

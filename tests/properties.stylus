@@ -1,16 +1,7 @@
-abc
-h1 feocuc
-one, two
-*
-ul :odd
-#foo
-#foo #bar
-.null .foo
-*:before
-ul > li
-a:hover
-a:hover button
-ul > a:hover
-ul > li:last-child
-#for .foo
-    foo: bar
+h1
+  foo: bar
+  fizz fuzz
+
+h2
+  margin: 10px
+  border 1px 1px 1px 1px

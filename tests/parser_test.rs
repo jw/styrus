@@ -64,7 +64,9 @@ fn complete() {
                         ]),
                         properties(7, 20, [
                             property(7, 20, [
-                                indent(7, 10, [])
+                                indent(7, 10, []),
+                                name(10, 16, []),
+                                value(17, 20, [])
                             ])
                         ])
                     ]),
@@ -77,7 +79,13 @@ fn complete() {
                         ]),
                         properties(24, 50, [
                             property(24, 50, [
-                                indent(24, 27)
+                                indent(24, 27),
+                                name(27, 34),
+                                value(35, 38),
+                                value(39, 42),
+                                value(43, 46),
+                                value(47, 50),
+
                             ])
                         ])
                     ])
