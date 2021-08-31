@@ -4,13 +4,13 @@ stylus = {SOI ~ rules ~ EOI }
 
 word = _{ (ASCII_ALPHANUMERIC)+ }
 identifier =  ${ (ASCII_ALPHANUMERIC | "-")+ }
-
-rules = { rule* }
-rule = { (selectors ~ properties ~ NEWLINE) | NEWLINE}
+name = ${ (ASCII_ALPHANUMERIC)+ }
+value = ${ (ASCII_ALPHANUMERIC)+ }
 
 // properties
+colon = { ":" }
 properties = { property+ }
-property = { indent ~ word+ }
+property = { indent ~ name ~ colon? ~ value+ }
 
 // selectors
 asterisk = { "*" }
@@ -18,5 +18,9 @@ prefix = { "#" | "." | ":"}
 separator = { "," | ">" | "~" | "+" }
 selector = { asterisk | asterisk? ~ prefix? ~ identifier ~ separator? }
 selectors = { selector+ }
+
+// rules
+rules = { rule* }
+rule = { (selectors ~ properties ~ NEWLINE) | NEWLINE }
 
 indent = ${ NEWLINE ~ " "+ }
